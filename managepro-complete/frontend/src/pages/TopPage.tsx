@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Calendar, momentLocalizer } from 'react-big-calendar'
-import * as moment from 'moment'
-import 'moment/locale/ja'
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay } from 'date-fns'
+import { ja } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-const localizer = momentLocalizer(moment)
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { locale: ja }),
+  getDay,
+  locales: { ja },
+})
+
 import { usersApi, projectsApi } from '../api'
 import { useAuthStore, useOrgStore } from '../stores'
 import { Header } from '../components/layout/Header'
