@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import jaLocale from '@fullcalendar/core/locales/ja'
+import jaLocale from '@fullcalendar/core/locales/ja.js'
 import { usersApi, orgsApi, paypalApi } from '../api'
 import { useAuthStore, useOrgStore } from '../stores'
 import { Header } from '../components/layout/Header'
@@ -152,7 +152,7 @@ export const ProfilePage: React.FC = () => {
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                   }}
                   height={480}
-                  datesSet={async (info) => {
+                  datesSet={async (info: any) => {
                     try {
                       const res = await usersApi.getCalendar(info.startStr, info.endStr)
                       setEvents(res.data)
