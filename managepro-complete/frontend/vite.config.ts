@@ -1,34 +1,34 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
   server: {
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8787', // wrangler dev port
+        target: 'http://localhost:8787',
         changeOrigin: true,
       },
     },
   },
+  optimizeDeps: {
+    include: [
+      '@fullcalendar/core',
+      '@fullcalendar/react',
+      '@fullcalendar/daygrid',
+      '@fullcalendar/timegrid',
+      '@fullcalendar/interaction',
+    ],
+  },
   build: {
-    outDir: 'dist',
-    sourcemap: false,
+    commonjsOptions: {
+      include: [/@fullcalendar\//, /node_modules/],
+    },
     rollupOptions: {
-      output: {
-        manualChunks: {
-          react: ['react', 'react-dom', 'react-router-dom'],
-          calendar: ['@fullcalendar/react', '@fullcalendar/daygrid', '@fullcalendar/timegrid', '@fullcalendar/interaction'],
-          charts: ['recharts'],
-          tldraw: ['@tldraw/tldraw'],
-        },
+      onwarn(warning, warn) {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return
+        warn(warning)
       },
     },
   },
