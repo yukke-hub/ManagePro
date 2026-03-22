@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
-import { authApi } from './api'
+import { authApi, orgsApi } from './api'
 import { useAuthStore, useOrgStore } from './stores'
 import { TopPage } from './pages/TopPage'
 import { ProjectPage } from './pages/ProjectPage'
@@ -30,7 +30,6 @@ const Boot: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         const res = await authApi.me()
         setUser(res.data)
         // Load orgs
-        const { orgsApi } = await import('./api')
         const orgsRes = await orgsApi.list()
         setOrganizations(orgsRes.data)
         if (!activeOrgId && orgsRes.data.length > 0) {

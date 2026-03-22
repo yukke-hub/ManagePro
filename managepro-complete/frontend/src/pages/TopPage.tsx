@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { locale: ja }),
+  getDay,
+  locales: { ja },
+})
+
 import { usersApi, projectsApi } from '../api'
 import { useAuthStore, useOrgStore } from '../stores'
 import { Header } from '../components/layout/Header'
@@ -166,27 +175,33 @@ export const TopPage: React.FC = () => {
                 <Button size="sm" variant="ghost" onClick={() => setAddEventModal(true)}>+ 予定を追加</Button>
               </div>
               <div className="bg-white border border-silver rounded-2xl p-4 overflow-hidden">
-                <FullCalendar
-                  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                  initialView="dayGridMonth"
-                  locale="ja"
-                  headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' }}
-                  events={calendarEvents}
-                  height={400}
-                  datesSet={(info: any) => loadCalendarEvents(info.startStr, info.endStr)}
-                  eventClick={(info: any) => {
-                    const src = info.event.extendedProps.source_type
-                    if (src === 'custom') {
+                <Calendar
+                  localizer={localizer}
+                  events={calendarEvents.map(e => ({
+                    id: e.id,
+                    title: e.title,
+                    start: new Date(e.start),
+                    end: e.end ? new Date(e.end) : new Date(e.start),
+                    resource: e,
+                  }))}
+                  style={{ height: 400 }}
+                  onSelectSlot={(slot: any) => {
+                    setNewEvent({ ...newEvent, start_at: slot.start.toISOString().slice(0,10), all_day: true })
+                    setAddEventModal(true)
+                  }}
+                  onSelectEvent={(event: any) => {
+                    if (event.resource?.source_type === 'custom') {
                       if (confirm('このイベントを削除しますか？')) {
-                        usersApi.deleteCalendarEvent(info.event.id).then(() => {
-                          setEvents((prev) => prev.filter((e) => e.id !== info.event.id))
+                        usersApi.deleteCalendarEvent(event.id).then(() => {
+                          setEvents((prev) => prev.filter((e) => e.id !== event.id))
                         })
                       }
                     }
                   }}
-                  dateClick={(info: any) => {
-                    setNewEvent({ ...newEvent, start_at: info.dateStr, all_day: true })
-                    setAddEventModal(true)
+                  selectable
+                  messages={{
+                    next: '次', back: '前', today: '今日',
+                    month: '月', week: '週', day: '日',
                   }}
                 />
               </div>
