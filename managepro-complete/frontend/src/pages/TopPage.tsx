@@ -4,7 +4,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import jaLocale from '@fullcalendar/core/locales/ja'
+import jaLocale from '@fullcalendar/core/locales/ja.js'
 import { usersApi, projectsApi } from '../api'
 import { useAuthStore, useOrgStore } from '../stores'
 import { Header } from '../components/layout/Header'
@@ -174,8 +174,8 @@ export const TopPage: React.FC = () => {
                   headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' }}
                   events={calendarEvents}
                   height={400}
-                  datesSet={(info) => loadCalendarEvents(info.startStr, info.endStr)}
-                  eventClick={(info) => {
+                  datesSet={(info: any) => loadCalendarEvents(info.startStr, info.endStr)}
+                  eventClick={(info: any) => {
                     const src = info.event.extendedProps.source_type
                     if (src === 'custom') {
                       if (confirm('このイベントを削除しますか？')) {
@@ -185,7 +185,7 @@ export const TopPage: React.FC = () => {
                       }
                     }
                   }}
-                  dateClick={(info) => {
+                  dateClick={(info: any) => {
                     setNewEvent({ ...newEvent, start_at: info.dateStr, all_day: true })
                     setAddEventModal(true)
                   }}
