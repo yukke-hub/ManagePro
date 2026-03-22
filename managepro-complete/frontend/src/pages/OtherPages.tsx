@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import allLocales from '@fullcalendar/core/locales-all'
 import { usersApi, orgsApi, paypalApi } from '../api'
 import { useAuthStore, useOrgStore } from '../stores'
 import { Header } from '../components/layout/Header'
@@ -144,8 +143,7 @@ export const ProfilePage: React.FC = () => {
                 <h2 className="font-semibold mb-4">📅 スケジュール</h2>
                 <FullCalendar
                   plugins={[dayGridPlugin, timeGridPlugin]}
-                  initialView="timeGridWeek"
-                  locales={allLocales}
+                  initialView="timeGridWeek"        
                   locale="ja"
                   headerToolbar={{
                     left: 'prev,next today',
