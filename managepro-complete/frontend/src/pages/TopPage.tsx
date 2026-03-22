@@ -4,7 +4,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import jaLocale from '@fullcalendar/core/locales/ja.js'
+import allLocales from '@fullcalendar/core/locales-all'
 import { usersApi, projectsApi } from '../api'
 import { useAuthStore, useOrgStore } from '../stores'
 import { Header } from '../components/layout/Header'
@@ -170,7 +170,8 @@ export const TopPage: React.FC = () => {
                 <FullCalendar
                   plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                   initialView="dayGridMonth"
-                  locale={jaLocale}
+                  locales={allLocales}
+                  locale="ja"
                   headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' }}
                   events={calendarEvents}
                   height={400}
