@@ -1,0 +1,22 @@
+{
+  "name": "managepro-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "tsc",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create managepro-db",
+    "db:migrate": "wrangler d1 execute managepro-db --file=./schema.sql",
+    "db:migrate:local": "wrangler d1 execute managepro-db --local --file=./schema.sql"
+  },
+  "dependencies": {
+    "hono": "^4.1.0",
+    "@tsndr/cloudflare-worker-jwt": "^2.5.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.28.4"
+  }
+}

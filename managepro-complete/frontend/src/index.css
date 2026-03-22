@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-snow: #F7F7F7;
+  --color-silver: #D9D9D9;
+  --color-ink: #242424;
+  --color-violet: #9664F7;
+  --color-violet-light: #B08DF9;
+  --color-violet-dark: #7445E8;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --header-height: 56px;
+  --sidebar-width: 240px;
+
+  --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--color-snow);
+  color: var(--color-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Scrollbars ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-silver); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #bbb; }
+
+/* ─── Selection ─── */
+::selection { background: rgba(150, 100, 247, 0.2); }
+
+/* ─── Focus ring ─── */
+:focus-visible {
+  outline: 2px solid var(--color-violet);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Typography ─── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+/* ─── Link ─── */
+a { color: inherit; text-decoration: none; }
+
+/* ─── Input base ─── */
+input, textarea, select {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* ─── FullCalendar overrides ─── */
+.fc {
+  --fc-border-color: var(--color-silver);
+  --fc-today-bg-color: rgba(150, 100, 247, 0.06);
+  --fc-event-bg-color: var(--color-violet);
+  --fc-event-border-color: var(--color-violet);
+  --fc-button-bg-color: var(--color-ink);
+  --fc-button-border-color: var(--color-ink);
+  --fc-button-hover-bg-color: #333;
+  --fc-button-active-bg-color: var(--color-violet);
+}
+
+.fc .fc-toolbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.fc .fc-button {
+  border-radius: var(--radius-sm) !important;
+  font-size: 13px !important;
+  padding: 4px 10px !important;
+  font-weight: 500 !important;
+}
+
+.fc .fc-daygrid-event {
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 1px 4px;
+}
+
+.fc .fc-col-header-cell {
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+}
+
+/* ─── tldraw overrides ─── */
+.tl-container {
+  border-radius: var(--radius-lg) !important;
+}
+
+/* ─── Drag handle ─── */
+.drag-handle {
+  cursor: grab;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* ─── Kanban column colors ─── */
+.kanban-todo { border-top: 2px solid var(--color-silver); }
+.kanban-in_progress { border-top: 2px solid #F59E0B; }
+.kanban-review { border-top: 2px solid #3B82F6; }
+.kanban-done { border-top: 2px solid #10B981; }
+
+/* ─── Priority colors ─── */
+.priority-low { color: #10B981; }
+.priority-medium { color: #F59E0B; }
+.priority-high { color: #F97316; }
+.priority-urgent { color: #EF4444; }
+
+/* ─── Status badge ─── */
+.status-todo { background: #F3F4F6; color: #6B7280; }
+.status-in_progress { background: #FEF3C7; color: #92400E; }
+.status-review { background: #DBEAFE; color: #1E40AF; }
+.status-done { background: #D1FAE5; color: #065F46; }
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+.animate-slide-up { animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-scale-in { animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-spin { animation: spin 0.8s linear infinite; }
+
+/* ─── Jitsi iframe ─── */
+#jitsi-iframe-container {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}

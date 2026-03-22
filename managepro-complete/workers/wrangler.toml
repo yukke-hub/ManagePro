@@ -1,0 +1,22 @@
+name = "managepro-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+JWT_SECRET = "CHANGE_THIS_TO_A_RANDOM_SECRET_AT_LEAST_32_CHARS"
+PAYPAL_CLIENT_ID = "dummy"
+PAYPAL_CLIENT_SECRET = "dummy"
+PAYPAL_PLAN_ID = "dummy"
+PAYPAL_MODE = "sandbox"  # "sandbox" for testing
+FRONTEND_URL = "https://managepro.yukkebee.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "managepro-db"
+database_id = "19518c3a-46a3-409a-a281-94c9b2c51e9a"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "9e44becb313640549d5754cb5023f7f5"  # Fill after: npx wrangler kv:namespace create managepro-kv
