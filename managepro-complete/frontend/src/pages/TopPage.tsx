@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
-import moment from 'moment'
+import * as moment from 'moment'
 import 'moment/locale/ja'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 const localizer = momentLocalizer(moment)
