@@ -21,7 +21,7 @@
     {
       "binding": "DB",
       "database_name": "managepro-db",
-      "database_id": "REPLACE_WITH_YOUR_D1_ID",
+      "database_id": "337f579a-d402-42c2-bff6-844ea209491a",
       "migrations_dir": "migrations"
     }
   ],
@@ -32,8 +32,8 @@
 
   "vars": {
     "ENVIRONMENT": "production",
-    "ACCESS_TEAM_DOMAIN": "REPLACE_TEAM.cloudflareaccess.com",
-    "ACCESS_AUD": "REPLACE_WITH_ACCESS_AUD_TAG",
+    "ACCESS_TEAM_DOMAIN": "yukkebee.cloudflareaccess.com",
+    "ACCESS_AUD": "97d4a9e72b514b42a08c9550940779c27425be126522750d0b76295a1b54c3c0",
     "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct",
     "AI_DAILY_USER_LIMIT": "15",
     "AI_DAILY_GLOBAL_LIMIT": "40",
