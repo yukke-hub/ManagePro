@@ -33,7 +33,7 @@
   "vars": {
     "ENVIRONMENT": "production",
     "ACCESS_TEAM_DOMAIN": "yukkebee.cloudflareaccess.com",
-    "ACCESS_AUD": "6e89a10bf88c46eb655a4f776f2a46d88ce91a4347a0d3b7e0d2a8e2a64de4ea",
+    "ACCESS_AUD": "97d4a9e72b514b42a08c9550940779c27425be126522750d0b76295a1b54c3c0",
     "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct",
     "AI_DAILY_USER_LIMIT": "15",
     "AI_DAILY_GLOBAL_LIMIT": "40",
