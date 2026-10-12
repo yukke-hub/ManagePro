@@ -4,10 +4,13 @@ export interface Task {
   project_name: string | null;
   due_date: string | null;
   est_minutes: number | null;
+  urgency: number;
+  priority: number;
   status: 'todo' | 'doing' | 'done';
   done_criteria: string | null;
   notes: string | null;
   completed_on?: string | null;
+  score?: number;
 }
 export interface EventItem {
   id: number;
@@ -21,23 +24,20 @@ export interface EventItem {
 export interface Recommended {
   tasks: Task[];
   reason: string | null;
-  source: 'ai' | 'rule';
-  aiLimited?: boolean;
+  source: 'rule';
 }
 export interface Cheer {
   text: string;
-  source: 'ai' | 'rule';
-  aiLimited?: boolean;
+  source: 'rule';
 }
 export interface Dashboard {
   date: string;
-  user: { displayName: string; timezone: string };
+  user: { displayName: string; timezone: string; workStart: string; workEnd: string };
   recommended: Recommended;
   events: EventItem[];
   weekDone: number;
   todayDone: number;
   openCount: number;
   cheer: Cheer;
-  stale: { recommend: boolean; cheer: boolean };
   aiRemaining: number;
 }

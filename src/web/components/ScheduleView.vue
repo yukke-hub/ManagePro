@@ -49,7 +49,7 @@ async function act(fn: () => Promise<unknown>) {
           <span class="t-title">{{ e.title }}<span v-if="e.status === 'proposed'" class="tag">提案</span></span>
           <span class="row-actions">
             <button v-if="e.status === 'proposed'" class="btn sm" @click="act(() => api.post(`/events/${e.id}/approve`))">承認</button>
-            <button v-if="e.status === 'confirmed'" class="edit" :aria-label="`${e.title}を編集`" @click="openEventEdit(e, mode)">編集</button>
+            <button v-if="e.status === 'confirmed'" class="edit" :aria-label="`${e.title}を編集`" @click="openEventEdit(e)">編集</button>
             <button class="link danger" :aria-label="`${e.title}を${e.status === 'proposed' ? '却下' : '削除'}`" @click="act(() => api.del(`/events/${e.id}`))">
               {{ e.status === 'proposed' ? '却下' : '削除' }}
             </button>

@@ -29,6 +29,7 @@ const groups = computed(() => {
     else if (t.due_date <= week) g['1週間以内'].push(t);
     else g['それ以降'].push(t);
   }
+  for (const v of Object.values(g)) v.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   return Object.entries(g).filter(([, v]) => v.length);
 });
 
@@ -78,8 +79,9 @@ const meta = (t: Task) =>
               <span class="box" aria-hidden="true"></span>
               <span class="t-title">{{ t.title }}<span v-if="t.status === 'doing'" class="tag">進行中</span></span>
             </label>
+            <span v-if="t.score != null" class="score" title="緊急度・優先度・締切から計算した推奨スコア">{{ Math.round(t.score) }}点</span>
             <span class="meta">{{ meta(t) }}</span>
-            <button class="edit" :aria-label="`${t.title}を編集`" @click="openEdit(t, 'task-list')">編集</button>
+            <button class="edit" :aria-label="`${t.title}を編集`" @click="openEdit(t)">編集</button>
             <button class="link danger" :aria-label="`${t.title}を削除`" @click="remove(t)">削除</button>
           </li>
         </ul>
@@ -94,7 +96,7 @@ const meta = (t: Task) =>
           <span class="t-title">{{ t.title }}</span>
         </label>
         <span class="meta">{{ meta(t) }}</span>
-        <button class="edit" :aria-label="`${t.title}を編集`" @click="openEdit(t, 'task-list')">編集</button>
+        <button class="edit" :aria-label="`${t.title}を編集`" @click="openEdit(t)">編集</button>
         <button class="link danger" :aria-label="`${t.title}を削除`" @click="remove(t)">削除</button>
       </li>
     </ul>

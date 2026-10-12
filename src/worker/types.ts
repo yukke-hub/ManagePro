@@ -21,6 +21,8 @@ export interface User {
   email: string;
   display_name: string;
   timezone: string;
+  work_start: string;
+  work_end: string;
 }
 
 export type AppEnv = { Bindings: Env; Variables: { user: User } };
@@ -37,6 +39,8 @@ export interface TaskRow {
   notes: string | null;
   due_date: string | null;
   est_minutes: number | null;
+  urgency: number;
+  priority: number;
   status: TaskStatus;
   completed_on: string | null;
   created_at: string;

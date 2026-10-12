@@ -29,6 +29,8 @@ export interface NewTask {
   est_minutes?: number | null;
   done_criteria?: string | null;
   notes?: string | null;
+  urgency?: number | null;
+  priority?: number | null;
 }
 
 export async function getTask(db: D1Database, userId: number, id: number): Promise<TaskRow | null> {
@@ -39,10 +41,20 @@ export async function insertTask(db: D1Database, user: User, t: NewTask): Promis
   const projectId = await getOrCreateProjectId(db, user.id, t.project);
   const res = await db
     .prepare(
-      `INSERT INTO tasks (user_id, project_id, title, done_criteria, notes, due_date, est_minutes)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tasks (user_id, project_id, title, done_criteria, notes, due_date, est_minutes, urgency, priority)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
-    .bind(user.id, projectId, t.title, t.done_criteria ?? null, t.notes ?? null, t.due_date ?? null, t.est_minutes ?? null)
+    .bind(
+      user.id,
+      projectId,
+      t.title,
+      t.done_criteria ?? null,
+      t.notes ?? null,
+      t.due_date ?? null,
+      t.est_minutes ?? null,
+      t.urgency ?? 3,
+      t.priority ?? 3,
+    )
     .run();
   return (await getTask(db, user.id, res.meta.last_row_id as number))!;
 }

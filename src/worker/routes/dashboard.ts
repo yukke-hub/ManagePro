@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import { aiRemaining } from '../ai';
-import { cachedCheer, cachedRecommendation, fallbackCheer } from '../features';
-import { rankTasks } from '../schedule';
+import { cheerText, recommendedTasks } from '../features';
 import { listEvents, listOpenTasks, weekDoneCount } from '../services';
 import type { AppEnv } from '../types';
 import { isValidDate, todayIn, weekRange } from '../util';
@@ -9,8 +8,8 @@ import { isValidDate, todayIn, weekRange } from '../util';
 const app = new Hono<AppEnv>();
 
 /**
- * 1 画面ぶんの情報を 1 回で返す。ここでは AI を呼ばない(キャッシュ参照のみ)。
- * stale.* が true のとき、画面側が POST /api/ai/* を 1 回だけ呼んで更新する。
+ * 1 画面ぶんの情報を 1 回で返す。
+ * 実行推奨タスク・励ましコメントは AI を使わず、ロジックのみで毎回計算する。
  */
 app.get('/', async (c) => {
   const user = c.get('user');
@@ -26,20 +25,18 @@ app.get('/', async (c) => {
     weekDoneCount(c.env.DB, user.id, date, date),
     aiRemaining(c.env, user.id),
   ]);
-  const ranked = rankTasks(open);
-  const { rec, stale } = await cachedRecommendation(c.env, user, date, ranked);
-  const cheer = await cachedCheer(c.env, user, date, weekDone);
+  const rec = await recommendedTasks(c.env, user, date, open);
+  const overdue = open.filter((t) => t.due_date && t.due_date < date).length;
 
   return c.json({
     date,
-    user: { displayName: user.display_name, timezone: user.timezone },
-    recommended: { tasks: rec.tasks, reason: rec.reason, source: rec.source },
+    user: { displayName: user.display_name, timezone: user.timezone, workStart: user.work_start, workEnd: user.work_end },
+    recommended: rec,
     events,
     weekDone,
     todayDone,
     openCount: open.length,
-    cheer: cheer ?? { text: fallbackCheer(user.display_name, weekDone), source: 'rule' },
-    stale: { recommend: stale && remaining > 0, cheer: !cheer && remaining > 0 },
+    cheer: { text: cheerText(user.display_name, weekDone, todayDone, overdue), source: 'rule' },
     aiRemaining: remaining,
   });
 });

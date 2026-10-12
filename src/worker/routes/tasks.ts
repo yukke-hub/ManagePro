@@ -1,16 +1,21 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { getOrCreateProjectId, getTask, insertTask, setTaskStatus } from '../services';
+import { taskScore } from '../schedule';
 import type { AppEnv, TaskRow } from '../types';
-import { isValidDate } from '../util';
+import { isValidDate, todayIn } from '../util';
 
 const app = new Hono<AppEnv>();
 
 const dateSchema = z.string().refine(isValidDate, 'invalid date');
+const scoreSchema = z.number().int().min(1).max(5);
+// 新規作成では締切の入力を必須にする(緊急度・優先度は未指定なら「普通」(3)扱い)
 const createSchema = z.object({
   title: z.string().trim().min(1).max(200),
   project: z.string().trim().max(60).nullish(),
-  due_date: dateSchema.nullish(),
+  due_date: dateSchema,
+  urgency: scoreSchema.optional(),
+  priority: scoreSchema.optional(),
   est_minutes: z.number().int().min(5).max(1440).nullish(),
   done_criteria: z.string().max(500).nullish(),
   notes: z.string().max(2000).nullish(),
@@ -34,7 +39,8 @@ app.get('/', async (c) => {
   )
     .bind(user.id, limit)
     .all<TaskRow>();
-  return c.json({ tasks: r.results });
+  const today = todayIn(user.timezone);
+  return c.json({ tasks: r.results.map((t) => ({ ...t, score: taskScore(t, today) })) });
 });
 
 app.post('/', async (c) => {
@@ -59,6 +65,8 @@ app.patch('/:id{[0-9]+}', async (c) => {
   };
   if ('title' in d) put('title', d.title);
   if ('due_date' in d) put('due_date', d.due_date);
+  if ('urgency' in d) put('urgency', d.urgency ?? 3);
+  if ('priority' in d) put('priority', d.priority ?? 3);
   if ('est_minutes' in d) put('est_minutes', d.est_minutes);
   if ('done_criteria' in d) put('done_criteria', d.done_criteria);
   if ('notes' in d) put('notes', d.notes);

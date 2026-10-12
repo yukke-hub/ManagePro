@@ -42,21 +42,16 @@ export const auth = createMiddleware<AppEnv>(async (c, next) => {
   if (!email) return c.json({ error: 'unauthorized' }, 401);
 
   // 読み取り優先。初回だけ INSERT(D1 の書き込み回数を節約)
-  let user = await env.DB.prepare(
-    'SELECT id, email, display_name, timezone FROM users WHERE email = ?',
-  )
-    .bind(email)
-    .first<User>();
+  const SELECT_USER = 'SELECT id, email, display_name, timezone, work_start, work_end FROM users WHERE email = ?';
+  let user = await env.DB.prepare(SELECT_USER).bind(email).first<User>();
   if (!user) {
     const display = (name || email.split('@')[0]).slice(0, 30);
     await env.DB.prepare(
-      'INSERT INTO users (email, display_name, timezone) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING',
+      'INSERT INTO users (email, display_name, timezone, work_start, work_end) VALUES (?, ?, ?, ?, ?) ON CONFLICT(email) DO NOTHING',
     )
-      .bind(email, display, env.DEFAULT_TZ || 'Asia/Tokyo')
+      .bind(email, display, env.DEFAULT_TZ || 'Asia/Tokyo', env.WORK_START || '09:00', env.WORK_END || '21:00')
       .run();
-    user = await env.DB.prepare('SELECT id, email, display_name, timezone FROM users WHERE email = ?')
-      .bind(email)
-      .first<User>();
+    user = await env.DB.prepare(SELECT_USER).bind(email).first<User>();
   }
   if (!user) return c.json({ error: 'user_init_failed' }, 500);
   c.set('user', user);

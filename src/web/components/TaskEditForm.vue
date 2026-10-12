@@ -8,6 +8,8 @@ const t = editing.value!;
 const title = ref(t.title);
 const project = ref(t.project_name ?? '');
 const due = ref(t.due_date ?? '');
+const urgency = ref(t.urgency ?? 3);
+const priority = ref(t.priority ?? 3);
 const est = ref<number | ''>(t.est_minutes ?? '');
 const criteria = ref(t.done_criteria ?? '');
 const notes = ref(t.notes ?? '');
@@ -23,14 +25,15 @@ onMounted(async () => {
 });
 
 async function save() {
-  if (!title.value.trim() || busy.value) return;
+  if (!title.value.trim() || !due.value || busy.value) return;
   busy.value = true;
-  // 空欄は null を送って「未設定」に戻す
   const r = await run(() =>
     api.patch(`/tasks/${t.id}`, {
       title: title.value.trim(),
       project: project.value.trim() || null,
-      due_date: due.value || null,
+      due_date: due.value,
+      urgency: urgency.value,
+      priority: priority.value,
       est_minutes: est.value || null,
       done_criteria: criteria.value.trim() || null,
       notes: notes.value.trim() || null,
@@ -55,12 +58,25 @@ async function save() {
       <datalist id="projects-edit"><option v-for="p in projects" :key="p" :value="p" /></datalist>
     </label>
     <div class="pair">
-      <label>期限 <input v-model="due" type="date" /></label>
+      <label>期限<span class="req">必須</span> <input v-model="due" type="date" required /></label>
       <label>かかる時間
         <select v-model="est">
           <option value="">未設定</option>
           <option v-for="m in [15, 30, 45, 60, 90, 120, 180, 240]" :key="m" :value="m">{{ m }}分</option>
           <option v-if="est && ![15, 30, 45, 60, 90, 120, 180, 240].includes(Number(est))" :value="est">{{ est }}分</option>
+        </select>
+      </label>
+    </div>
+    <p v-if="!due" class="hint err">締切を入力してください。</p>
+    <div class="pair">
+      <label>緊急度
+        <select v-model.number="urgency">
+          <option v-for="n in [1, 2, 3, 4, 5]" :key="n" :value="n">{{ n }}{{ n === 1 ? '(低い)' : n === 5 ? '(高い)' : '' }}</option>
+        </select>
+      </label>
+      <label>優先度
+        <select v-model.number="priority">
+          <option v-for="n in [1, 2, 3, 4, 5]" :key="n" :value="n">{{ n }}{{ n === 1 ? '(低い)' : n === 5 ? '(高い)' : '' }}</option>
         </select>
       </label>
     </div>
@@ -74,7 +90,7 @@ async function save() {
     <label>完了条件 <input v-model="criteria" type="text" maxlength="500" /></label>
     <label>メモ <textarea v-model="notes" rows="3" maxlength="2000"></textarea></label>
     <div class="form-actions">
-      <button class="btn" type="submit" :disabled="busy || !title.trim()">保存</button>
+      <button class="btn" type="submit" :disabled="busy || !title.trim() || !due">保存</button>
       <button class="link" type="button" @click="closeEdit()">キャンセル</button>
     </div>
   </form>

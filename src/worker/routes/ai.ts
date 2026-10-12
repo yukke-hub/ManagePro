@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { AiUnavailable, BASE_SYSTEM, callAI, extractJson, logBadOutput } from '../ai';
-import { aiCheer, aiRecommend } from '../features';
 import { fmtSlots, freeSlotsFor, planDay } from '../planning';
 import { rankTasks } from '../schedule';
 import { getTask, insertEvent, insertTask, listEvents, listOpenTasks, setTaskStatus } from '../services';
@@ -10,15 +9,8 @@ import { DATETIME_RE, isValidDate, TIME_RE, todayIn, weekdayJa } from '../util';
 
 const app = new Hono<AppEnv>();
 
-app.post('/recommend', async (c) => {
-  const user = c.get('user');
-  return c.json({ recommended: await aiRecommend(c.env, user, todayIn(user.timezone)) });
-});
-
-app.post('/cheer', async (c) => {
-  const user = c.get('user');
-  return c.json({ cheer: await aiCheer(c.env, user, todayIn(user.timezone)) });
-});
+// AI はここ(チャットでのタスク追加・各種依頼)と /plan(スケジュール案の作成)でのみ使う。
+// 実行推奨タスク・励ましコメントはロジックのみで計算する(features.ts / routes/dashboard.ts)。
 
 app.post('/plan', async (c) => {
   const user = c.get('user');
@@ -44,6 +36,8 @@ const Action = z.discriminatedUnion('type', [
     title: z.string().trim().min(1).max(200),
     project: z.string().trim().max(60).nullish(),
     due: dateS.nullish(),
+    urgency: z.number().int().min(1).max(5).nullish(),
+    priority: z.number().int().min(1).max(5).nullish(),
     est_minutes: z.number().int().min(5).max(1440).nullish(),
     done_criteria: z.string().max(500).nullish(),
     notes: z.string().max(2000).nullish(),
@@ -77,7 +71,7 @@ app.post('/chat', async (c) => {
   const data = {
     today,
     weekday: weekdayJa(today),
-    tasks: rankTasks(open).map((t) => ({ id: t.id, title: t.title, project: t.project_name, due: t.due_date })),
+    tasks: rankTasks(open, today).map((t) => ({ id: t.id, title: t.title, project: t.project_name, due: t.due_date })),
     today_events: todayEvents.map((e) => ({ title: e.title, start: e.start_at.slice(11), end: e.end_at.slice(11) })),
   };
 
@@ -89,7 +83,7 @@ app.post('/chat', async (c) => {
       user.id,
       `${BASE_SYSTEM}ユーザーの依頼を次のJSONに変換します。` +
         `{"reply":"ユーザーへのやさしい返事(80字以内)","actions":[...]}。actionsは最大5件で、種類は次のとおり:\n` +
-        `{"type":"add_task","title":"","project":"任意","due":"YYYY-MM-DD 任意","est_minutes":数値 任意,"done_criteria":"任意","notes":"任意"}\n` +
+        `{"type":"add_task","title":"","project":"任意","due":"YYYY-MM-DD 任意","urgency":1〜5 任意,"priority":1〜5 任意,"est_minutes":数値 任意,"done_criteria":"任意","notes":"任意"}\n` +
         `{"type":"complete_task","task_id":数値}  (data.tasksにあるidのみ)\n` +
         `{"type":"add_event","title":"","date":"YYYY-MM-DD","start":"HH:MM","end":"HH:MM","task_id":数値 任意}\n` +
         `{"type":"free_slots","date":"YYYY-MM-DD"}  (空き時間を聞かれたとき)\n` +

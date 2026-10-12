@@ -7,6 +7,8 @@ import { addDays } from '../util';
 const title = ref('');
 const project = ref('');
 const due = ref('');
+const urgency = ref(3);
+const priority = ref(3);
 const est = ref<number | ''>('');
 const criteria = ref('');
 const notes = ref('');
@@ -24,13 +26,15 @@ onMounted(async () => {
 const setDue = (n: number) => (due.value = addDays(dash.value!.date, n));
 
 async function submit() {
-  if (!title.value.trim() || busy.value) return;
+  if (!title.value.trim() || !due.value || busy.value) return;
   busy.value = true;
   const r = await run(() =>
     api.post('/tasks', {
       title: title.value.trim(),
       project: project.value.trim() || null,
-      due_date: due.value || null,
+      due_date: due.value,
+      urgency: urgency.value,
+      priority: priority.value,
       est_minutes: est.value || null,
       done_criteria: criteria.value.trim() || null,
       notes: notes.value.trim() || null,
@@ -40,6 +44,7 @@ async function submit() {
   if (!r) return;
   toast('タスクを追加しました。');
   title.value = criteria.value = notes.value = '';
+  urgency.value = priority.value = 3;
   await loadDashboard();
   titleEl.value?.focus();
 }
@@ -55,14 +60,27 @@ async function submit() {
       <datalist id="projects"><option v-for="p in projects" :key="p" :value="p" /></datalist>
     </label>
     <div class="field">
-      <label>期限
-        <input v-model="due" type="date" />
+      <label>期限<span class="req">必須</span>
+        <input v-model="due" type="date" required />
       </label>
       <div class="chips">
         <button type="button" class="chip" @click="setDue(0)">今日</button>
         <button type="button" class="chip" @click="setDue(1)">明日</button>
         <button type="button" class="chip" @click="setDue(7)">1週間後</button>
       </div>
+      <p v-if="!due" class="hint err">締切を入力してください。</p>
+    </div>
+    <div class="pair">
+      <label>緊急度
+        <select v-model.number="urgency">
+          <option v-for="n in [1, 2, 3, 4, 5]" :key="n" :value="n">{{ n }}{{ n === 1 ? '(低い)' : n === 5 ? '(高い)' : '' }}</option>
+        </select>
+      </label>
+      <label>優先度
+        <select v-model.number="priority">
+          <option v-for="n in [1, 2, 3, 4, 5]" :key="n" :value="n">{{ n }}{{ n === 1 ? '(低い)' : n === 5 ? '(高い)' : '' }}</option>
+        </select>
+      </label>
     </div>
     <label>かかる時間
       <select v-model="est">
@@ -79,6 +97,6 @@ async function submit() {
         <textarea v-model="notes" rows="3" maxlength="2000"></textarea>
       </label>
     </template>
-    <button class="btn" type="submit" :disabled="busy || !title.trim()">タスクを追加</button>
+    <button class="btn" type="submit" :disabled="busy || !title.trim() || !due">タスクを追加</button>
   </form>
 </template>

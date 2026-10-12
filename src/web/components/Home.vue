@@ -54,7 +54,7 @@ async function reject(e: EventItem) {
                 <span class="t-title">{{ t.title }}</span>
                 <span v-if="t.due_date" class="t-due" :class="{ late: late(t.due_date) }">| {{ md(t.due_date) }}まで</span>
               </label>
-              <button class="edit" :aria-label="`${t.title}を編集`" @click="openEdit(t, null)">編集</button>
+              <button class="edit" :aria-label="`${t.title}を編集`" @click="openEdit(t)">編集</button>
             </li>
           </ul>
           <p v-else class="empty">今日やることはありません。「タスクを追加する」から始めましょう。</p>
@@ -77,7 +77,7 @@ async function reject(e: EventItem) {
                   </span>
                 </div>
               </div>
-              <button v-if="e.status === 'confirmed'" class="edit" :aria-label="`${e.title}を編集`" @click="openEventEdit(e, null)">編集</button>
+              <button v-if="e.status === 'confirmed'" class="edit" :aria-label="`${e.title}を編集`" @click="openEventEdit(e)">編集</button>
             </li>
           </ul>
           <p v-else class="empty">今日の予定はまだありません。</p>

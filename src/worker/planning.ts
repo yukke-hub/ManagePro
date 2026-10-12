@@ -5,11 +5,16 @@ import { listEvents, listOpenTasks } from './services';
 import type { Env, EventRow, User } from './types';
 import { addDays, nowMinutesIn, TIME_RE, todayIn, toHHMM, toMin } from './util';
 
-/** その日の空き時間。今日なら現在時刻(15分切り上げ)以降のみ */
+/** その日の空き時間。今日なら現在時刻(15分切り上げ)以降のみ。稼働時間はユーザー設定を優先する */
 export async function freeSlotsFor(env: Env, user: User, date: string): Promise<Slot[]> {
   const events = await listEvents(env.DB, user.id, date, date, 'confirmed');
   const notBefore = date === todayIn(user.timezone) ? Math.ceil(nowMinutesIn(user.timezone) / 15) * 15 : 0;
-  return computeFreeSlots(busyOf(events), toMin(env.WORK_START || '09:00'), toMin(env.WORK_END || '21:00'), notBefore);
+  return computeFreeSlots(
+    busyOf(events),
+    toMin(user.work_start || env.WORK_START || '09:00'),
+    toMin(user.work_end || env.WORK_END || '21:00'),
+    notBefore,
+  );
 }
 
 export const fmtSlots = (slots: Slot[]) => slots.map((s) => `${toHHMM(s.start)}-${toHHMM(s.end)}`);
@@ -33,7 +38,7 @@ export interface PlanResult {
  */
 export async function planDay(env: Env, user: User, date: string): Promise<PlanResult> {
   const slots = await freeSlotsFor(env, user, date);
-  const ranked = rankTasks(await listOpenTasks(env.DB, user.id, 50));
+  const ranked = rankTasks(await listOpenTasks(env.DB, user.id, 50), date);
   const top = ranked.slice(0, 12);
 
   if (slots.length === 0 || top.length === 0) {
@@ -56,7 +61,15 @@ export async function planDay(env: Env, user: User, date: string): Promise<PlanR
     const data = {
       date,
       slots: fmtSlots(slots),
-      tasks: top.map((t) => ({ id: t.id, title: t.title, project: t.project_name, due: t.due_date, est_minutes: t.est_minutes })),
+      tasks: top.map((t) => ({
+        id: t.id,
+        title: t.title,
+        project: t.project_name,
+        due: t.due_date,
+        est_minutes: t.est_minutes,
+        urgency: t.urgency,
+        priority: t.priority,
+      })),
     };
     raw = await callAI(
       env,
@@ -64,7 +77,8 @@ export async function planDay(env: Env, user: User, date: string): Promise<PlanR
       `${BASE_SYSTEM}空き時間(slots)にタスクを割り当ててJSONで返します。` +
         `形式: {"blocks":[{"task_id":数値,"start":"HH:MM","end":"HH:MM"}],"message":"やさしい一言(60字以内)"}。` +
         `ルール: 各ブロックは必ずいずれかのslot内に収める。所要時間はest_minutes(無ければ60分)を目安にする。` +
-        `期限が近いものを優先し、詰め込みすぎない。`,
+        `data.tasksはスコア(urgency・priority・締切)の高い順に並んでいるので、原則その順番を優先する。` +
+        `ブロックどうしは5分以上の間隔をあけ、詰め込みすぎない。`,
       `<data>${JSON.stringify(data)}</data>`,
       500,
     );

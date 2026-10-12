@@ -20,7 +20,13 @@ const groups = [
   { title: 'Tasks', items: [['task-new', 'タスクを追加する'], ['task-list', '今後のタスクを確認する']] },
   {
     title: 'Schedule',
-    items: [['event-new', '予定を追加する'], ['week', '今週のスケジュールをみる'], ['upcoming', '今後のスケジュールをみる'], ['free', 'スケジュールの空きをみる']],
+    items: [
+      ['event-new', '予定を追加する'],
+      ['week', '今週のスケジュールをみる'],
+      ['upcoming', '今後のスケジュールをみる'],
+      ['calendar', 'カレンダーで見る'],
+      ['free', 'スケジュールの空きをみる'],
+    ],
   },
 ];
 </script>

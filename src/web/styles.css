@@ -39,8 +39,11 @@ h2, h3, p { margin: 0; }
 .main { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 16px; min-height: 0; padding: 4px 6px 0; }
 .avatar { position: absolute; top: 4px; right: 6px; z-index: 3; width: 36px; height: 36px; border-radius: 50%; background: #d8d2ca; color: var(--side); font-weight: 700; }
 .avatar:hover { background: var(--accent); }
-.stage { position: relative; min-height: 0; overflow: hidden; }
-.home { height: 100%; display: flex; flex-direction: column; padding: 8px 56px 0 0; overflow-y: auto; }
+/* 左ペイン(タスク一覧・予定一覧)と右ペイン(追加・編集・設定)の 2 分割 */
+.stage { position: relative; display: flex; align-items: stretch; gap: 20px; min-height: 0; }
+.left-pane { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 8px 56px 0 0; }
+.stage.split .left-pane { flex: 1 1 55%; padding-right: 20px; }
+.home { display: flex; flex-direction: column; min-height: 100%; }
 .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 30px; }
 .col { min-width: 0; }
 .tasks li { margin-bottom: 14px; }
@@ -102,13 +105,31 @@ h2, h3, p { margin: 0; }
 .ai-meta .link { font-size: 13px; }
 .quota { margin-left: auto; }
 
-/* ---- 右パネル ---- */
-.panel { position: absolute; inset: 0 0 0 auto; width: min(560px, 100%); z-index: 2; background: var(--raised); border-radius: 28px; display: flex; flex-direction: column; box-shadow: -12px 0 32px rgba(0, 0, 0, 0.35); }
+/* ---- 右パネル(左の一覧と並んで常時表示される) ---- */
+.panel { flex: 1 1 45%; max-width: 480px; min-height: 0; z-index: 2; background: var(--raised); border-radius: 28px; display: flex; flex-direction: column; box-shadow: -12px 0 32px rgba(0, 0, 0, 0.25); }
 .panel header { display: flex; align-items: center; justify-content: space-between; padding: 18px 56px 6px 28px; }
 .panel h2 { font-size: 18px; font-weight: 500; }
 .panel-body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 28px 28px; }
 .slide-enter-active, .slide-leave-active { transition: transform 0.22s ease, opacity 0.22s ease; }
 .slide-enter-from, .slide-leave-to { transform: translateX(24px); opacity: 0; }
+
+.req { margin-left: 8px; color: var(--danger); font-size: 11px; font-weight: 700; vertical-align: 1px; }
+.score { flex: none; color: var(--accent); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---- カレンダー ---- */
+.calendar { display: flex; flex-direction: column; gap: 14px; }
+.cal-head { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.cal-head h3 { font-size: 16px; font-weight: 500; min-width: 9em; text-align: center; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-dow { text-align: center; color: var(--muted); font-size: 12px; padding-bottom: 4px; }
+.cal-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; aspect-ratio: 1; border-radius: 12px; background: var(--side); color: var(--ink); padding: 6px 2px; }
+.cal-cell:hover { background: var(--raised); }
+.cal-cell.out { color: var(--muted); opacity: 0.45; }
+.cal-cell.today .cal-day { color: var(--accent); font-weight: 700; }
+.cal-cell.selected { outline: 2px solid var(--accent); outline-offset: -2px; }
+.cal-day { font-size: 14px; font-variant-numeric: tabular-nums; }
+.cal-dot { min-width: 16px; height: 16px; padding: 0 3px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+.cal-day-list { margin-top: 6px; }
 
 .form { display: flex; flex-direction: column; gap: 16px; }
 .form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); }
@@ -147,13 +168,16 @@ h2, h3, p { margin: 0; }
   .side { padding: 18px; }
   .group { margin-bottom: 14px; }
   .clock { display: none; }
-  .home { padding-right: 0; overflow: visible; }
+  .home { padding-right: 0; }
   .cols, .rules { grid-template-columns: 1fr; gap: 22px; }
   .rules hr:last-child { display: none; }
-  .stage { overflow: visible; }
-  .panel { position: fixed; inset: 12px; width: auto; }
+  /* 狭い画面では左右分割をやめ、右パネルは画面に重ねて表示する */
+  .stage { display: block; overflow: visible; }
+  .left-pane { padding-right: 0; overflow: visible; }
+  .panel { position: fixed; inset: 12px; max-width: none; width: auto; z-index: 5; }
   .avatar { top: -4px; }
   .toasts { bottom: 24px; }
+  .cal-day { font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
